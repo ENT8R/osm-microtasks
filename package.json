@@ -1,0 +1,25 @@
+{
+  "name": "OSM-microtasks",
+  "version": "0.1.0",
+  "description": "A program for performing micro-tasks to improve the OpenStreetMap",
+  "main": "main.js",
+  "scripts": {
+    "start": "npm run build && python -m SimpleHTTPServer",
+    "build": "browserify tasks/phone/phone.js -o tasks/phone/bundle.js",
+    "watch": "watchify tasks/phone/phone.js -o tasks/phone/bundle.js -v",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "ENT8R <info.ent8r@gmail.com>",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "google-libphonenumber": "^3.0.9",
+    "mustache": "^2.3.0",
+    "osmtogeojson": "^3.0.0-beta.2",
+    "request": "^2.83.0",
+    "xml2js": "^0.4.19"
+  },
+  "devDependencies": {
+    "browserify": "^14.5.0",
+    "watchify": "^3.9.0"
+  }
+}

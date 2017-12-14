@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>OSM micro tasks</title>
+  <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+  <!--<link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css"/>-->
+  <link rel="shortcut icon" type="image/x-icon" href="../../assets/icon.png">
+</head>
+
+<body>
+
+  <nav>
+    <div class="nav-wrapper indigo">
+      <a href="../../index.html" class="brand-logo left">OSM micro tasks</a>
+      <ul id="nav-mobile" class="right">
+        <li><a href="mailto:info.ent8r@gmail.com">Propose new area</a></li>
+        <!--<li><a id="view-on-map" href="#">View on Map</a></li>
+        <li><a id="upload-immediately" href="#">Upload</a></li>-->
+      </ul>
+    </div>
+  </nav>
+
+  <div class="progress" style="display:none;">
+    <div class="indeterminate"></div>
+  </div>
+
+  <div class="input-field col s12">
+    <select id="area">
+      <option value="" disabled selected>Choose your option</option>
+      <optgroup label="Germany">
+        <option value="DE-BW">Baden-Württemberg</option>
+        <option value="DE-BY">Bavaria</option>
+        <option value="DE-BE">Berlin</option>
+        <option value="DE-BB">Brandenburg</option>
+        <option value="DE-HB">Bremen</option>
+        <option value="DE-HH">Hamburg</option>
+        <option value="DE-HE">Hesse</option>
+        <option value="DE-MV">Mecklenburg-Western Pomerania</option>
+        <option value="DE-NI">Lower Saxony</option>
+        <option value="DE-NW">North Rhine-Westphalia</option>
+        <option value="DE-RP">Rhineland-Palatinate</option>
+        <option value="DE-SL">Saarland</option>
+        <option value="DE-SN">Saxony</option>
+        <option value="DE-ST">Saxony-Anhalt</option>
+        <option value="DE-SH">Schleswig-Holstein</option>
+        <option value="DE-TH">Thuringia</option>
+      </optgroup>
+    </select>
+    <label>Area</label>
+  </div>
+
+  <div id="elements"></div>
+
+  <div id="map" style="display:none;height:500px;"></div>
+
+  <div id="login-modal" class="modal">
+    <form class="col s12" id="login-form">
+      <div class="modal-content center">
+        <h4>Login</h4>
+        <p>Please login with your OpenStreetMap credentials to get started.<br></p>
+        <p>Your credentials are not stored on a server and it will be possible to authenticate through OAuth in the near future</p>
+        <div class="row">
+          <div class="input-field col s12 m6">
+            <input id="user" type="text" name="user" required>
+            <label for="user">Username</label>
+          </div>
+          <div class="input-field col s12 m6">
+            <input id="password" type="password" name="password" required>
+            <label for="password">Password</label>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <a id="login-button" href="#" class="modal-action waves-effect waves-green btn-flat" type="submit">Login</a>
+      </div>
+    </form>
+  </div>
+
+  <!-- Template for mustache -->
+  <script id="element-template" type="text/x-tmpl-mustache">
+    <div data-id="{{id}}" data-phone="{{new_phone}}" class="row col s12">
+      {{phone}} {{#new_phone}}-> {{new_phone}}{{/new_phone}}
+      <a href="http://www.openstreetmap.org/{{element}}/{{id}}" target="_blank"><i class="material-icons">open_in_browser</i></a> {{#valid}}
+      <div class="right">
+        <a class="waves-effect waves-light btn-large indigo" onclick="$(this).parent().parent().remove();"><i class="material-icons">close</i></a>
+        <a class="waves-effect waves-light btn-large indigo" onclick="upload('{{id}}', '{{new_phone}}', '{{element}}'); $(this).parent().parent().remove();"><i class="material-icons">check</i></a>
+      </div>
+      {{/valid}} {{^valid}}
+      <a href="#"><i class="material-icons red-text invalid-tooltip">close</i></a> {{/valid}}
+    </div>
+  </script>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+  <script src="jquery.validate-1.17.0.min.js"></script>
+  <!--<script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"></script>-->
+  <script src="bundle.js"></script>
+
+</body>
+
+</html>
