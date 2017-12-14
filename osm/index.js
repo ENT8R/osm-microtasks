@@ -1,11 +1,9 @@
-const request = require('request');
-
-let osmURL = 'http://www.openstreetmap.org';
+let osmURL = 'https://www.openstreetmap.org';
 let osmAuth = {};
 const version = '0.1.0'
 
 function overpass(query, callback) {
-  post('http://overpass-api.de/api/interpreter', query, function(data) {
+  post('https://overpass-api.de/api/interpreter', query, function(data) {
     callback(data);
   });
 }
@@ -15,10 +13,10 @@ function createChangeset(comment, callback) {
 
   let changeset = '<osm>' +
     '<changeset>' +
-      '<tag k="created_by" v="OSM Microtasks ' + version + '"/>' +
-      '<tag k="comment" v="' + comment + '"/>' +
+    '<tag k="created_by" v="OSM Microtasks ' + version + '"/>' +
+    '<tag k="comment" v="' + comment + '"/>' +
     '</changeset>' +
-  '</osm>';
+    '</osm>';
 
   put(osmURL + '/api/0.6/changeset/create', changeset, function(data) {
     callback(data);
@@ -42,44 +40,38 @@ function updateElement(element, id, body, callback) {
 }
 
 //module specific request functions
+const http = new XMLHttpRequest();
+
 function get(url, callback) {
-  request.get({
-    auth: osmAuth,
-    url: url
-  }, function(err, response, body) {
-    if (response.statusCode == 200) {
-      if (callback) callback(body);
-    } else {
-      console.log(err);
+  http.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      if (callback) callback(http.responseText);
     }
-  });
+  };
+  http.open("GET", url, true);
+  http.setRequestHeader("Authorization", "Basic " + window.btoa(osmAuth.user + ":" + osmAuth.pass));
+  http.send();
 }
 
 function put(url, data, callback) {
-  request.put({
-    auth: osmAuth,
-    url: url,
-    body: data || ''
-  }, function(err, response, body) {
-    if (response.statusCode == 200) {
-      if (callback) callback(body);
-    } else {
-      console.log(err);
+  http.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      if (callback) callback(http.responseText);
     }
-  });
+  };
+  http.open("PUT", url, true);
+  http.setRequestHeader("Authorization", "Basic " + window.btoa(osmAuth.user + ":" + osmAuth.pass));
+  http.send(data || '');
 }
 
 function post(url, data, callback) {
-  request.post({
-    url: url,
-    body: data
-  }, function(err, response, body) {
-    if (response.statusCode == 200) {
-      callback(body);
-    } else {
-      console.log(err);
+  http.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      if (callback) callback(http.responseText);
     }
-  });
+  };
+  http.open("POST", url, true);
+  http.send(data);
 }
 
 //export the module
