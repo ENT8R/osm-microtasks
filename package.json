@@ -1,7 +1,7 @@
 {
   "name": "OSM-microtasks",
   "version": "0.1.0",
-  "description": "A program for performing micro-tasks to improve the OpenStreetMap",
+  "description": "A website for performing micro-tasks to improve the OpenStreetMap",
   "main": "main.js",
   "scripts": {
     "start": "npm run build && python -m SimpleHTTPServer",

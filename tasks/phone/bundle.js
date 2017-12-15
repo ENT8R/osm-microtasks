@@ -21061,12 +21061,10 @@ const parser = new xml2js.Parser();
 let osm;
 
 $(document).ready(function() {
-  $('select').material_select();
-
+  $('#country').material_select();
   $('#login-modal').modal({
     dismissible: false
   });
-  $('#login-modal').modal('open');
 
   $('#login-form').validate({
     validClass: 'valid',
@@ -21076,13 +21074,31 @@ $(document).ready(function() {
     },
     submitHandler: function(form, e) {
       e.preventDefault();
+
+      localStorage.setItem("user", $('#user').val());
+      localStorage.setItem("pass", $('#password').val());
+
       osm = new osmAPI({
         user: $('#user').val(),
         pass: $('#password').val()
       });
+
       $('#login-modal').modal('close');
     }
   });
+
+  if (typeof(Storage) !== "undefined") {
+    if (localStorage.getItem("user") && localStorage.getItem("pass")) {
+      osm = new osmAPI({
+        user: localStorage.getItem("user"),
+        pass: localStorage.getItem("pass")
+      });
+    } else {
+      $('#login-modal').modal('open');
+    }
+  } else {
+    $('#login-modal').modal('open');
+  }
 
   //Set listeners
   //TODO: Implement OAuth
@@ -21096,8 +21112,22 @@ $(document).ready(function() {
     uploadImmediately();
   });
 
-  $('#area').change(function() {
-    query($('#area').val());
+  $('#country').change(function() {
+    $('#states').hide();
+    if (hasStates($(this).val())) {
+      //Show the option to select a state of the selected country
+      $('#elements').empty();
+      $('#states').show();
+      $('.states[data-country="' + $(this).val() + '"]').parent().show();
+      $('.states[data-country="' + $(this).val() + '"]').material_select();
+    } else {
+      //A country was selected
+      query(buildQuery(2, $(this).val()), $(this).val());
+    }
+  });
+
+  $('.states').change(function() {
+    query(buildQuery(4, $(this).val()), $(this).attr('data-country'));
   });
 });
 
@@ -21106,17 +21136,46 @@ let geoJSON = '';
 let tagToSearch = 'phone';
 const changesetComment = 'Corrected phone number to be in international format (E.164)';
 
-function query(areaCode) {
+function hasStates(country) {
+  if (country == 'DE') {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+function buildQuery(level, area) {
+  const query = {
+    country: '[out:json][timeout:3600];' +
+      'area["ISO3166-1"="' + area + '"][admin_level=2]->.a;' +
+      '(' +
+      'node(area.a)["' + tagToSearch + '"]["' + tagToSearch + '"!~"^[+][1-9]|110|112"];' +
+      'way(area.a)["' + tagToSearch + '"]["' + tagToSearch + '"!~"^[+][1-9]|110|112"];' +
+      ');' +
+      'out;',
+    state: '[out:json][timeout:3600];' +
+      'area["ISO3166-2"="' + area + '"][admin_level=4]->.a;' +
+      '(' +
+      'node(area.a)["' + tagToSearch + '"]["' + tagToSearch + '"!~"^[+][1-9]|110|112"];' +
+      'way(area.a)["' + tagToSearch + '"]["' + tagToSearch + '"!~"^[+][1-9]|110|112"];' +
+      ');' +
+      'out;'
+  };
+
+  switch (level) {
+    case 2:
+      return query.country;
+      break;
+    case 4:
+      return query.state;
+      break;
+
+  }
+}
+
+function query(query, countryCode) {
   $('#elements').empty();
   $('.progress').show();
-
-  const query = '[out:json][timeout:3600];' +
-    'area["ISO3166-2"="' + areaCode + '"][admin_level=4]->.a;' +
-    '(' +
-    'node(area.a)["' + tagToSearch + '"]["' + tagToSearch + '"!~"^[+][1-9]|110|112"];' +
-    'way(area.a)["' + tagToSearch + '"]["' + tagToSearch + '"!~"^[+][1-9]|110|112"];' +
-    ');' +
-    'out;';
 
   osm.overpass(query, function(data) {
     $('.progress').fadeOut();
@@ -21126,7 +21185,7 @@ function query(areaCode) {
     geoJSON = osmtogeojson(JSON.parse(data));
 
     for (i = 0; i < elements.length; i++) {
-      appendElement(elements[i].id, elements[i].tags[tagToSearch], elements[i].type);
+      appendElement(elements[i].id, elements[i].tags[tagToSearch], elements[i].type, countryCode);
       numberOfElements++;
     }
 
@@ -21143,7 +21202,7 @@ function query(areaCode) {
   });
 }
 
-function appendElement(id, phone, element) {
+function appendElement(id, phone, element, countryCode) {
   let template = $('#element-template').html();
   Mustache.parse(template);
   let rendered = '';
@@ -21153,8 +21212,9 @@ function appendElement(id, phone, element) {
       id: id,
       phone: phone,
       valid: true,
-      new_phone: phoneUtil.format(phoneUtil.parse(phone, 'DE'), PNF.INTERNATIONAL),
-      element: element
+      new_phone: phoneUtil.format(phoneUtil.parse(phone, countryCode), PNF.INTERNATIONAL),
+      element: element,
+      comment: changesetComment
     });
   } catch (err) {
     console.log(id);
@@ -21164,7 +21224,9 @@ function appendElement(id, phone, element) {
       id: id,
       phone: phone,
       valid: false,
-      element: element
+      confidence: '0%',
+      element: element,
+      comment: changesetComment
     });
   }
 
