@@ -8,9 +8,6 @@
   <title>OSM micro tasks</title>
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.2.0/dist/MarkerCluster.css" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.2.0/dist/MarkerCluster.Default.css" />
   <link rel="shortcut icon" type="image/x-icon" href="../../assets/icon.png">
 
   <style>
@@ -22,10 +19,6 @@
     #view-on-map,
     #states>.input-field {
       display: none;
-    }
-
-    #map {
-      height: 75vh;
     }
   </style>
 </head>
@@ -91,14 +84,54 @@
     </div>
   </div>
 
-  <div id="map"></div>
+  <div id="elements" class="row"></div>
+
+  <div id="login-modal" class="modal">
+    <form class="col s12" id="login-form">
+      <div class="modal-content center">
+        <h4>Login</h4>
+        <p>Please login with your OpenStreetMap credentials to get started.<br></p>
+        <p>Your credentials are not stored on a server and it will be possible to authenticate through OAuth in the near future</p>
+        <div class="row">
+          <div class="input-field col s12 m6">
+            <input id="user" type="text" name="user" required>
+            <label for="user">Username</label>
+          </div>
+          <div class="input-field col s12 m6">
+            <input id="password" type="password" name="password" required>
+            <label for="password">Password</label>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <a id="login-button" href="#" class="modal-action waves-effect waves-green btn-flat" type="submit">Login</a>
+      </div>
+    </form>
+  </div>
+
+  <!-- Template for mustache -->
+  <script id="element-template" type="text/x-tmpl-mustache">
+    <div class="col s12 m6" data-id="{{id}}" data-phone="{{new_phone}}">
+      <div class="card blue-grey darken-1">
+        <div class="card-content white-text">
+          <span class="card-title">{{name}}</span>
+          <p>{{phone}} {{#new_phone}}-> {{new_phone}}{{/new_phone}}{{^valid}}
+            <a href="#"><i class="material-icons red-text invalid-tooltip">close</i></a> {{/valid}}<br> {{#confidence}}Confidence: {{confidence}}{{/confidence}}</p>
+        </div>
+        <div class="card-action">
+          <a href="http://www.openstreetmap.org/{{element}}/{{id}}" target="_blank">View on OpenStreetMap</a>
+          <a href="http://www.openstreetmap.org/edit?{{element}}={{id}}&comment={{comment}}" target="_blank">Open with editor</a><br><br> {{#valid}}
+          <a class="waves-effect waves-light btn-large indigo" onclick="$(this).parent().parent().parent().fadeOut('fast', function() {$(this).remove();});"><i class="material-icons">close</i></a>
+          <a class="waves-effect waves-light btn-large indigo" onclick="upload('{{id}}', '{{new_phone}}', '{{element}}'); $(this).parent().parent().parent().fadeOut('fast', function() {$(this).remove();});"><i class="material-icons">check</i></a> {{/valid}}
+        </div>
+      </div>
+    </div>
+  </script>
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
-  <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"></script>
-  <script src="https://unpkg.com/leaflet.markercluster@1.2.0/dist/leaflet.markercluster.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js"></script>
-  <script src="bundle.js"></script>
+  <script src="jquery.validate-1.17.0.min.js"></script>
+  <script src="expert.bundle.js"></script>
 
 </body>
 

@@ -3,13 +3,25 @@ const phoneUtil = require('google-libphonenumber').PhoneNumberUtil.getInstance()
 const Mustache = require('mustache');
 const osmtogeojson = require('osmtogeojson');
 const osmAPI = require('../../osm/index.js');
-const xml2js = require('xml2js');
 
-const builder = new xml2js.Builder();
-const parser = new xml2js.Parser();
+const copyNumber = new Clipboard('.copy-number');
+copyNumber.on('success', function(e) {
+  Materialize.toast("Copied number: " + e.text, 3000);
+});
+const copyNumberAndOpenEditor = new Clipboard('.copy-number-and-open');
+copyNumberAndOpenEditor.on('success', function(e) {
+  window.open($(e.trigger).attr("data-url"));
+});
 
-//const osmTestURL = 'https://master.apis.dev.openstreetmap.org';
-let osm;
+let osm = new osmAPI({
+  user: "fakeUser",
+  pass: "fakePassword"
+});
+let geoJSON = '';
+let map;
+
+let tagToSearch = 'phone';
+const changesetComment = 'Corrected phone number to be in international format (E.164)';
 
 $(document).ready(function() {
   $('#country').material_select();
@@ -17,47 +29,10 @@ $(document).ready(function() {
     dismissible: false
   });
 
-  $('#login-form').validate({
-    validClass: 'valid',
-    errorClass: 'invalid',
-    errorPlacement: function(error, element) {
-      element.next('label').attr('data-error', error.contents().text());
-    },
-    submitHandler: function(form, e) {
-      e.preventDefault();
-
-      localStorage.setItem("user", $('#user').val());
-      localStorage.setItem("pass", $('#password').val());
-
-      osm = new osmAPI({
-        user: $('#user').val(),
-        pass: $('#password').val()
-      });
-
-      $('#login-modal').modal('close');
-    }
-  });
-
-  if (typeof(Storage) !== "undefined") {
-    if (localStorage.getItem("user") && localStorage.getItem("pass")) {
-      osm = new osmAPI({
-        user: localStorage.getItem("user"),
-        pass: localStorage.getItem("pass")
-      });
-    } else {
-      $('#login-modal').modal('open');
-    }
-  } else {
-    $('#login-modal').modal('open');
-  }
-
   //Set listeners
   //TODO: Implement OAuth
   $('#login-button').click(function() {
     $('#login-form').submit();
-  });
-  $('#view-on-map').click(function() {
-    viewOnMap();
   });
   $('#upload-immediately').click(function() {
     uploadImmediately();
@@ -65,9 +40,9 @@ $(document).ready(function() {
 
   $('#country').change(function() {
     $('#states').hide();
+
     if (hasStates($(this).val())) {
       //Show the option to select a state of the selected country
-      $('#elements').empty();
       $('#states').show();
       $('.states[data-country="' + $(this).val() + '"]').parent().show();
       $('.states[data-country="' + $(this).val() + '"]').material_select();
@@ -81,11 +56,6 @@ $(document).ready(function() {
     query(buildQuery(4, $(this).val()), $(this).attr('data-country'));
   });
 });
-
-let geoJSON = '';
-
-let tagToSearch = 'phone';
-const changesetComment = 'Corrected phone number to be in international format (E.164)';
 
 function hasStates(country) {
   if (country == 'DE') {
@@ -125,7 +95,6 @@ function buildQuery(level, area) {
 }
 
 function query(query, countryCode) {
-  $('#elements').empty();
   $('.progress').show();
 
   osm.overpass(query, function(data) {
@@ -133,102 +102,72 @@ function query(query, countryCode) {
 
     let numberOfElements = 0;
     let elements = JSON.parse(data).elements;
-    geoJSON = osmtogeojson(JSON.parse(data));
-
-    for (i = 0; i < elements.length; i++) {
-      appendElement(elements[i].id, elements[i].tags[tagToSearch], elements[i].type, countryCode);
-      numberOfElements++;
-    }
-
-    $('.invalid-tooltip').tooltip({
-      delay: 50,
-      position: 'bottom',
-      tooltip: 'Invalid number (needs to be fixed with an external editor)'
-    });
-
-    if (numberOfElements == 0) {
-      $('#elements').append("Congratulations! Everything seems to be fixed here!");
-    }
-    console.log('Number of found elements: ' + numberOfElements);
+    viewOnMap(osmtogeojson(JSON.parse(data)), countryCode);
   });
 }
 
-function appendElement(id, phone, element, countryCode) {
-  let template = $('#element-template').html();
-  Mustache.parse(template);
-  let rendered = '';
-
-  try {
-    rendered = Mustache.render(template, {
-      id: id,
-      phone: phone,
-      valid: true,
-      new_phone: phoneUtil.format(phoneUtil.parse(phone, countryCode), PNF.INTERNATIONAL),
-      element: element,
-      comment: changesetComment
-    });
-  } catch (err) {
-    console.log(id);
-    console.log(phone);
-    console.log(err.message);
-    rendered = Mustache.render(template, {
-      id: id,
-      phone: phone,
-      valid: false,
-      confidence: '0%',
-      element: element,
-      comment: changesetComment
-    });
-  }
-
-  $('#elements').append(rendered);
-}
-
-function upload(id, phone, element) {
-  osm.getElement(element, id, function(data) {
-    console.log(data);
-
-    parser.parseString(data, function(err, result) {
-      console.log(result);
-
-      for (i = 0; i < result.osm[element][0].tag.length; i++) {
-        if (result.osm[element][0].tag[i].$.k == tagToSearch) {
-          result.osm[element][0].tag[i].$.v = phone;
-        }
-      }
-
-      osm.createChangeset(changesetComment, function(changesetID) {
-        //Set new id of changeset
-        result.osm[element][0].$.changeset = changesetID;
-
-        const xml = builder.buildObject(result);
-        console.log(xml);
-
-        osm.updateElement(element, id, xml, function(data) {
-          console.log(data);
-          osm.closeChangeset(changesetID);
-          Materialize.toast("Uploaded successfully", 6000);
-        });
-      });
-    });
-  });
-}
-window.upload = upload;
-
-//TODO: Implement method to display all elements on a map
-function viewOnMap() {
-  $('#elements').hide();
+function viewOnMap(geoJSON, countryCode) {
   $('#map').show();
 
-  const map = L.map('map').setView([52, -10], 5);
+  if (!map) map = L.map('map').setView([0, 0], 3);
+
+  map.eachLayer(function(layer) {
+    map.removeLayer(layer);
+  });
+
   L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
   }).addTo(map);
-  L.geoJSON(geoJSON, {
+
+  const markers = L.markerClusterGroup();
+
+  const geoJSONLayer = L.geoJSON(geoJSON, {
     onEachFeature: function(feature, layer) {
-      if (feature.properties && feature.properties.type && feature.properties.tags[tagToSearch]) {
-        layer.bindPopup('<a href="http://www.openstreetmap.org?' + feature.properties.type + '=' + feature.properties.tags[tagToSearch] + '" target="_blank">Open on OSM</a>');
+      if (feature.properties && feature.properties.id && feature.properties[tagToSearch]) {
+        let phoneNumber = '';
+        let validNumber = true;
+
+        try {
+          phoneNumber = phoneUtil.format(phoneUtil.parse(feature.properties[tagToSearch], countryCode), PNF.INTERNATIONAL);
+        } catch (err) {
+          phoneNumber = feature.properties[tagToSearch];
+          validNumber = false;
+        }
+
+        layer.bindPopup(getMarkerText(feature.properties.id, feature.properties[tagToSearch], phoneNumber, validNumber), {
+          maxWidth: 1000
+        });
       }
     }
-  }).addTo(map);
+  });
+
+  markers.addLayer(geoJSONLayer);
+  map.addLayer(markers);
+  map.fitBounds(markers.getBounds());
+}
+
+function getMarkerText(id, phone, newPhone, valid) {
+  if (valid) {
+    return '<div class="center">' +
+      '<h5>' + phone + ' -> ' + newPhone + '</h5>' +
+      '<a href="http://www.openstreetmap.org/' + id +
+      '" target="_blank" class="waves-effect waves-light btn white-text">View on OpenStreetMap</a><br>' +
+      '<a href="http://www.openstreetmap.org/edit?' + id.replace('/', '=') + '&comment=' + changesetComment +
+      '" target="_blank" class="waves-effect waves-light btn white-text">Open with editor</a><br>' +
+      '<a class="copy-number waves-effect waves-light btn white-text" data-clipboard-text="' + newPhone +
+      '">Copy new number to clipboard</a><br>' +
+      '<a class="copy-number-and-open waves-effect waves-light btn white-text" data-clipboard-text="' + newPhone +
+      '" data-url="http://www.openstreetmap.org/edit?' + id.replace('/', '=') + '&comment=' + changesetComment +
+      '">Copy new number to clipboard and open editor</a>' +
+      '</div>';
+  } else {
+    return '<div class="center">' +
+      '<h5>' + phone + '</h5><br>' +
+      '<p>Number is not valid! Please fix it by hand!<i class="material-icons red-text invalid-tooltip">close</i></p><br>' +
+      '<br><a href="http://www.openstreetmap.org/' + id +
+      '" target="_blank" class="waves-effect waves-light btn white-text">View on OpenStreetMap</a><br>' +
+      '<a href="http://www.openstreetmap.org/edit?' + id.replace('/', '=') + '&comment=' + changesetComment +
+      '" target="_blank" class="waves-effect waves-light btn white-text">Open with editor</a>' +
+      '</div>';
+  }
 }
