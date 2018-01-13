@@ -1,7 +1,7 @@
 const PNF = require('google-libphonenumber').PhoneNumberFormat;
 const phoneUtil = require('google-libphonenumber').PhoneNumberUtil.getInstance();
 const Mustache = require('mustache');
-const osmAPI = require('../../osm/index.js');
+const osmAPI = require('../../../osm/index.js');
 const xml2js = require('xml2js');
 
 const builder = new xml2js.Builder();
@@ -74,18 +74,23 @@ function buildQuery(level, area) {
       'area["ISO3166-1"="' + area + '"][admin_level=2]->.a;' +
       '(' +
       'node(area.a)["' + tagToSearch + '"]["' + tagToSearch + '"!~"^[+][1-9]|110|112"];' +
+      'node(area.a)["' + tagToSearch + '"]["' + tagToSearch + '"~"-"];' +
       'way(area.a)["' + tagToSearch + '"]["' + tagToSearch + '"!~"^[+][1-9]|110|112"];' +
+      'way(area.a)["' + tagToSearch + '"]["' + tagToSearch + '"~"-"];' +
       ');' +
-      'out geom;',
+      'out center;' +
+      'out skel;',
     state: '[out:json][timeout:3600];' +
       'area["ISO3166-2"="' + area + '"][admin_level=4]->.a;' +
       '(' +
       'node(area.a)["' + tagToSearch + '"]["' + tagToSearch + '"!~"^[+][1-9]|110|112"];' +
+      'node(area.a)["' + tagToSearch + '"]["' + tagToSearch + '"~"-"];' +
       'way(area.a)["' + tagToSearch + '"]["' + tagToSearch + '"!~"^[+][1-9]|110|112"];' +
+      'way(area.a)["' + tagToSearch + '"]["' + tagToSearch + '"~"-"];' +
       ');' +
-      'out geom;'
+      'out center;' +
+      'out skel;'
   };
-
   switch (level) {
     case 2:
       return query.country;
@@ -93,7 +98,6 @@ function buildQuery(level, area) {
     case 4:
       return query.state;
       break;
-
   }
 }
 

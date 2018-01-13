@@ -1,11 +1,10 @@
 {
-  "name": "OSM-microtasks",
+  "name": "osm-microtasks",
   "version": "0.1.0",
   "description": "A website for performing micro-tasks to improve the OpenStreetMap",
-  "main": "main.js",
   "scripts": {
     "start": "npm run build && python -m SimpleHTTPServer",
-    "build": "browserify tasks/phone/phone.js -o tasks/phone/bundle.js && browserify tasks/phone/expert.js -o tasks/phone/expert.bundle.js",
+    "build": "browserify tasks/phone/phone.js -o tasks/phone/bundle.js && browserify tasks/phone/expert/expert.js -o tasks/phone/expert/bundle.js",
     "watch": "watchify tasks/phone/phone.js -o tasks/phone/bundle.js -v",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

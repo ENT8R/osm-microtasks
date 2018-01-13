@@ -9353,7 +9353,9 @@ function buildQuery(level, area) {
       'area["ISO3166-1"="' + area + '"][admin_level=2]->.a;' +
       '(' +
       'node(area.a)["' + tagToSearch + '"]["' + tagToSearch + '"!~"^[+][1-9]|110|112"];' +
+      'node(area.a)["' + tagToSearch + '"]["' + tagToSearch + '"~"-"];' +
       'way(area.a)["' + tagToSearch + '"]["' + tagToSearch + '"!~"^[+][1-9]|110|112"];' +
+      'way(area.a)["' + tagToSearch + '"]["' + tagToSearch + '"~"-"];' +
       ');' +
       'out center;' +
       'out skel;',
@@ -9361,7 +9363,9 @@ function buildQuery(level, area) {
       'area["ISO3166-2"="' + area + '"][admin_level=4]->.a;' +
       '(' +
       'node(area.a)["' + tagToSearch + '"]["' + tagToSearch + '"!~"^[+][1-9]|110|112"];' +
+      'node(area.a)["' + tagToSearch + '"]["' + tagToSearch + '"~"-"];' +
       'way(area.a)["' + tagToSearch + '"]["' + tagToSearch + '"!~"^[+][1-9]|110|112"];' +
+      'way(area.a)["' + tagToSearch + '"]["' + tagToSearch + '"~"-"];' +
       ');' +
       'out center;' +
       'out skel;'
@@ -9437,18 +9441,17 @@ function getMarkerText(id, phone, newPhone, valid) {
   if (valid) {
     return '<h6>' + phone + ' -> ' + newPhone + '</h6>' +
       '<a href="http://www.openstreetmap.org/' + id + '" target="_blank">View on OpenStreetMap</a><br>' +
-      '<a href="http://www.openstreetmap.org/edit?' + id.replace('/', '=') + '&comment=' + changesetComment +
+      '<a href="http://osm.org/edit?' + id.replace('/', '=') + '&comment=' + changesetComment +
       '" target="_blank">Open with editor</a><br>' +
       '<a href="#" class="copy-number" data-clipboard-text="' + newPhone + '">Copy new number to clipboard</a><br>' +
       '<a href="#" class="copy-number-and-open" data-clipboard-text="' + newPhone +
-      '" data-url="http://www.openstreetmap.org/edit?' + id.replace('/', '=') + '&comment=' + changesetComment +
-      '">Copy new number to clipboard and open editor</a>';
+      '" data-url="http://osm.org/edit?editor=id&' + id.replace('/', '=') + '&comment=' + changesetComment +
+      '">Copy new number to clipboard and open iD</a>';
   } else {
     return '<h6>' + phone + '</h6><br>' +
       '<p>Number is not valid! Please fix it by hand!<i class="material-icons red-text invalid-tooltip">close</i></p><br>' +
-      '<br><a href="http://www.openstreetmap.org/' + id +
-      '" target="_blank">View on OpenStreetMap</a><br>' +
-      '<a href="http://www.openstreetmap.org/edit?' + id.replace('/', '=') + '&comment=' + changesetComment +
+      '<br><a href="http://www.openstreetmap.org/' + id + '" target="_blank">View on OpenStreetMap</a><br>' +
+      '<a href="http://osm.org/edit?' + id.replace('/', '=') + '&comment=' + changesetComment +
       '" target="_blank">Open with editor</a>';
   }
 }
