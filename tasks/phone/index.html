@@ -19,13 +19,12 @@
     }
 
     .progress,
-    #view-on-map,
-    #states>.input-field {
+    #states>.states-wrapper {
       display: none;
     }
 
     #map {
-      height: 75vh;
+      height: 80vh;
     }
   </style>
 </head>
@@ -48,8 +47,9 @@
   <div id="area" class="row">
 
     <!-- Countries -->
-    <div class="input-field col s12">
-      <select id="country">
+    <div class="col s12 m6">
+      <label>Country</label>
+      <select id="country" class="browser-default">
         <option value="" disabled selected>Choose your option</option>
         <option value="DE">Germany</option>
         <option value="DK">Denmark</option>
@@ -59,15 +59,15 @@
         <option value="SE">Sweden</option>
         <option value="CH">Swiss</option>
       </select>
-      <label>Country</label>
     </div>
 
     <!-- States -->
     <div id="states">
 
       <!-- States of Germany -->
-      <div class="input-field col s12">
-        <select class="states" data-country="DE">
+      <div class="states-wrapper col s12 m6">
+        <label>State</label>
+        <select class="states browser-default" data-country="DE">
           <option value="" disabled selected>Choose your option</option>
           <option value="DE-BW">Baden-Württemberg</option>
           <option value="DE-BY">Bavaria</option>
@@ -86,7 +86,6 @@
           <option value="DE-SH">Schleswig-Holstein</option>
           <option value="DE-TH">Thuringia</option>
         </select>
-        <label>State</label>
       </div>
     </div>
   </div>

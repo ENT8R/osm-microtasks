@@ -1,11 +1,18 @@
-let osmURL = 'https://www.openstreetmap.org';
-let osmAuth = {};
+const osmAuth = require('osm-auth');
+
+let auth;
+
 const version = '0.1.0'
 
 function overpass(query, callback) {
-  post('https://overpass-api.de/api/interpreter', query, function(data) {
-    callback(data);
-  });
+  const http = new XMLHttpRequest();
+  http.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      if (callback) callback(http.responseText);
+    }
+  };
+  http.open("POST", 'https://overpass-api.de/api/interpreter', true);
+  http.send(query);
 }
 
 function createChangeset(comment, callback) {
@@ -18,68 +25,88 @@ function createChangeset(comment, callback) {
     '</changeset>' +
     '</osm>';
 
-  put(osmURL + '/api/0.6/changeset/create', changeset, function(data) {
+  put('/api/0.6/changeset/create', changeset, function(data) {
     callback(data);
   });
 }
 
 function closeChangeset(id) {
-  put(osmURL + '/api/0.6/changeset/' + id + '/close');
+  put('/api/0.6/changeset/' + id + '/close');
 }
 
 function getElement(element, id, callback) {
-  get(osmURL + '/api/0.6/' + element + '/' + id, function(data) {
+  get('/api/0.6/' + element + '/' + id, function(data) {
     callback(data);
   });
 }
 
 function updateElement(element, id, body, callback) {
-  put(osmURL + '/api/0.6/' + element + '/' + id, body, function(data) {
+  put('/api/0.6/' + element + '/' + id, body, function(data) {
     callback(data);
   });
 }
 
-//module specific request functions
-const http = new XMLHttpRequest();
+function logout() {
+  auth.logout();
+}
+
+function authenticated() {
+  return auth.authenticated();
+}
+
+function authenticate(callback) {
+  auth.authenticate(callback);
+}
+
 
 function get(url, callback) {
-  http.onreadystatechange = function() {
-    if (this.readyState == 4 && this.status == 200) {
-      if (callback) callback(http.responseText);
+  auth.xhr({
+    method: 'GET',
+    path: url
+  }, function(err, res) {
+    if (!err) {
+      if (callback) callback(new XMLSerializer().serializeToString(res));
     }
-  };
-  http.open("GET", url, true);
-  http.setRequestHeader("Authorization", "Basic " + window.btoa(osmAuth.user + ":" + osmAuth.pass));
-  http.send();
+  });
 }
 
 function put(url, data, callback) {
-  http.onreadystatechange = function() {
-    if (this.readyState == 4 && this.status == 200) {
-      if (callback) callback(http.responseText);
+  console.log(authenticated());
+  auth.xhr({
+    method: 'PUT',
+    path: url,
+    content: data || ''
+  }, function(err, res) {
+    console.log(err);
+    console.log(res);
+    if (!err) {
+      if (callback) callback(new XMLSerializer().serializeToString(res));
     }
-  };
-  http.open("PUT", url, true);
-  http.setRequestHeader("Authorization", "Basic " + window.btoa(osmAuth.user + ":" + osmAuth.pass));
-  http.send(data || '');
+  });
 }
 
 function post(url, data, callback) {
-  http.onreadystatechange = function() {
-    if (this.readyState == 4 && this.status == 200) {
-      if (callback) callback(http.responseText);
+  auth.xhr({
+    method: 'POST',
+    path: url,
+    content: data
+  }, function(err, res) {
+    if (!err) {
+      if (callback) callback(new XMLSerializer().serializeToString(res));
     }
-  };
-  http.open("POST", url, true);
-  http.send(data);
+  });
 }
 
 //export the module
-module.exports = function(auth, url) {
-  if (!auth) throw new Error('No authentication provided');
-  osmAuth = auth;
-
-  if (url) osmURL = url;
+module.exports = function(config) {
+  if (config) {
+    auth = osmAuth({
+      oauth_consumer_key: 'sGSxWmOF7JYttUCO41YoQD2VJNqBlTjcjETAOmrW',
+      oauth_secret: 'cqpLFpQtEigD46EiAmaXnJqCaafNaEuz5Ow7l8ba',
+      auto: true,
+      singlepage: true
+    });
+  }
 
   this.overpass = overpass;
 
@@ -88,4 +115,8 @@ module.exports = function(auth, url) {
 
   this.getElement = getElement;
   this.updateElement = updateElement;
+
+  this.logout = logout;
+  this.authenticated = authenticated;
+  this.authenticate = authenticate;
 };

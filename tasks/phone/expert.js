@@ -7,55 +7,34 @@ const xml2js = require('xml2js');
 const builder = new xml2js.Builder();
 const parser = new xml2js.Parser();
 
-let osm;
+const osm = new osmAPI({
+  key: 'sGSxWmOF7JYttUCO41YoQD2VJNqBlTjcjETAOmrW',
+  secret: 'cqpLFpQtEigD46EiAmaXnJqCaafNaEuz5Ow7l8ba'
+});
 
 let tagToSearch = 'phone';
 const changesetComment = 'Corrected phone number to be in international format (E.164)';
 
 $(document).ready(function() {
-  $('#country').material_select();
   $('#login-modal').modal({
     dismissible: false
   });
-
-  $('#login-form').validate({
-    validClass: 'valid',
-    errorClass: 'invalid',
-    errorPlacement: function(error, element) {
-      element.next('label').attr('data-error', error.contents().text());
-    },
-    submitHandler: function(form, e) {
-      e.preventDefault();
-
-      localStorage.setItem("user", $('#user').val());
-      localStorage.setItem("pass", $('#password').val());
-
-      osm = new osmAPI({
-        user: $('#user').val(),
-        pass: $('#password').val()
-      });
-
-      $('#login-modal').modal('close');
-    }
-  });
-
-  if (typeof(Storage) !== "undefined") {
-    if (localStorage.getItem("user") && localStorage.getItem("pass")) {
-      osm = new osmAPI({
-        user: localStorage.getItem("user"),
-        pass: localStorage.getItem("pass")
-      });
-    } else {
-      $('#login-modal').modal('open');
-    }
-  } else {
+  if (!osm.authenticated()) {
     $('#login-modal').modal('open');
   }
 
   //Set listeners
-  //TODO: Implement OAuth
   $('#login-button').click(function() {
-    $('#login-form').submit();
+    osm.authenticate(function() {
+      Materialize.toast("Logged in successfully!", 6000);
+      $('#login-modal').modal('close');
+    })
+  });
+  $('#logout').click(function() {
+    osm.logout();
+    $('#elements').empty();
+    $('#login-modal').modal('open');
+    Materialize.toast("Logged out successfully!", 6000);
   });
   $('#upload-immediately').click(function() {
     uploadImmediately();

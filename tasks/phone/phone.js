@@ -13,10 +13,7 @@ copyNumberAndOpenEditor.on('success', function(e) {
   window.open($(e.trigger).attr("data-url"));
 });
 
-let osm = new osmAPI({
-  user: "fakeUser",
-  pass: "fakePassword"
-});
+let osm = new osmAPI();
 let geoJSON = '';
 let map;
 
@@ -24,16 +21,7 @@ let tagToSearch = 'phone';
 const changesetComment = 'Corrected phone number to be in international format (E.164)';
 
 $(document).ready(function() {
-  $('#country').material_select();
-  $('#login-modal').modal({
-    dismissible: false
-  });
-
   //Set listeners
-  //TODO: Implement OAuth
-  $('#login-button').click(function() {
-    $('#login-form').submit();
-  });
   $('#upload-immediately').click(function() {
     uploadImmediately();
   });
@@ -45,7 +33,6 @@ $(document).ready(function() {
       //Show the option to select a state of the selected country
       $('#states').show();
       $('.states[data-country="' + $(this).val() + '"]').parent().show();
-      $('.states[data-country="' + $(this).val() + '"]').material_select();
     } else {
       //A country was selected
       query(buildQuery(2, $(this).val()), $(this).val());
@@ -120,7 +107,6 @@ function viewOnMap(geoJSON, countryCode) {
   }).addTo(map);
 
   const markers = L.markerClusterGroup();
-
   const geoJSONLayer = L.geoJSON(geoJSON, {
     onEachFeature: function(feature, layer) {
       if (feature.properties && feature.properties.id && feature.properties[tagToSearch]) {
@@ -148,26 +134,20 @@ function viewOnMap(geoJSON, countryCode) {
 
 function getMarkerText(id, phone, newPhone, valid) {
   if (valid) {
-    return '<div class="center">' +
-      '<h5>' + phone + ' -> ' + newPhone + '</h5>' +
-      '<a href="http://www.openstreetmap.org/' + id +
-      '" target="_blank" class="waves-effect waves-light btn white-text">View on OpenStreetMap</a><br>' +
+    return '<h6>' + phone + ' -> ' + newPhone + '</h6>' +
+      '<a href="http://www.openstreetmap.org/' + id + '" target="_blank">View on OpenStreetMap</a><br>' +
       '<a href="http://www.openstreetmap.org/edit?' + id.replace('/', '=') + '&comment=' + changesetComment +
-      '" target="_blank" class="waves-effect waves-light btn white-text">Open with editor</a><br>' +
-      '<a class="copy-number waves-effect waves-light btn white-text" data-clipboard-text="' + newPhone +
-      '">Copy new number to clipboard</a><br>' +
-      '<a class="copy-number-and-open waves-effect waves-light btn white-text" data-clipboard-text="' + newPhone +
+      '" target="_blank">Open with editor</a><br>' +
+      '<a href="#" class="copy-number" data-clipboard-text="' + newPhone + '">Copy new number to clipboard</a><br>' +
+      '<a href="#" class="copy-number-and-open" data-clipboard-text="' + newPhone +
       '" data-url="http://www.openstreetmap.org/edit?' + id.replace('/', '=') + '&comment=' + changesetComment +
-      '">Copy new number to clipboard and open editor</a>' +
-      '</div>';
+      '">Copy new number to clipboard and open editor</a>';
   } else {
-    return '<div class="center">' +
-      '<h5>' + phone + '</h5><br>' +
+    return '<h6>' + phone + '</h6><br>' +
       '<p>Number is not valid! Please fix it by hand!<i class="material-icons red-text invalid-tooltip">close</i></p><br>' +
       '<br><a href="http://www.openstreetmap.org/' + id +
-      '" target="_blank" class="waves-effect waves-light btn white-text">View on OpenStreetMap</a><br>' +
+      '" target="_blank">View on OpenStreetMap</a><br>' +
       '<a href="http://www.openstreetmap.org/edit?' + id.replace('/', '=') + '&comment=' + changesetComment +
-      '" target="_blank" class="waves-effect waves-light btn white-text">Open with editor</a>' +
-      '</div>';
+      '" target="_blank">Open with editor</a>';
   }
 }

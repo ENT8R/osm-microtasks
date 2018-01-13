@@ -16,8 +16,7 @@
     }
 
     .progress,
-    #view-on-map,
-    #states>.input-field {
+    #states>.states-wrapper {
       display: none;
     }
   </style>
@@ -30,6 +29,7 @@
       <a href="../../index.html" class="brand-logo left hide-on-small-only">OSM micro tasks</a>
       <ul class="right">
         <li><a href="mailto:info.ent8r@gmail.com?Subject=New%20area%20for%20micro%20task"><i class="material-icons right">email</i>Propose new area</a></li>
+        <li><a id="logout" href="#"><i class="material-icons right">account_box</i>Logout</a></li>
       </ul>
     </div>
   </nav>
@@ -41,8 +41,9 @@
   <div id="area" class="row">
 
     <!-- Countries -->
-    <div class="input-field col s12">
-      <select id="country">
+    <div class="col s12 m6">
+      <label>Country</label>
+      <select id="country" class="browser-default">
         <option value="" disabled selected>Choose your option</option>
         <option value="DE">Germany</option>
         <option value="DK">Denmark</option>
@@ -52,15 +53,15 @@
         <option value="SE">Sweden</option>
         <option value="CH">Swiss</option>
       </select>
-      <label>Country</label>
     </div>
 
     <!-- States -->
     <div id="states">
 
       <!-- States of Germany -->
-      <div class="input-field col s12">
-        <select class="states" data-country="DE">
+      <div class="states-wrapper col s12 m6">
+        <label>State</label>
+        <select class="states browser-default" data-country="DE">
           <option value="" disabled selected>Choose your option</option>
           <option value="DE-BW">Baden-Württemberg</option>
           <option value="DE-BY">Bavaria</option>
@@ -79,7 +80,6 @@
           <option value="DE-SH">Schleswig-Holstein</option>
           <option value="DE-TH">Thuringia</option>
         </select>
-        <label>State</label>
       </div>
     </div>
   </div>
@@ -87,26 +87,9 @@
   <div id="elements" class="row"></div>
 
   <div id="login-modal" class="modal">
-    <form class="col s12" id="login-form">
-      <div class="modal-content center">
-        <h4>Login</h4>
-        <p>Please login with your OpenStreetMap credentials to get started.<br></p>
-        <p>Your credentials are not stored on a server and it will be possible to authenticate through OAuth in the near future</p>
-        <div class="row">
-          <div class="input-field col s12 m6">
-            <input id="user" type="text" name="user" required>
-            <label for="user">Username</label>
-          </div>
-          <div class="input-field col s12 m6">
-            <input id="password" type="password" name="password" required>
-            <label for="password">Password</label>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <a id="login-button" href="#" class="modal-action waves-effect waves-green btn-flat" type="submit">Login</a>
-      </div>
-    </form>
+    <div class="modal-content center">
+      <button id="login-button" href="#" class="btn-large waves-effect waves-green indigo">Login with OSM</button>
+    </div>
   </div>
 
   <!-- Template for mustache -->
