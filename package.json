@@ -16,7 +16,6 @@
     "google-libphonenumber": "^3.0.10",
     "mustache": "^2.3.0",
     "osm-auth": "^1.0.2",
-    "osmtogeojson": "^3.0.0-beta.3",
     "xml2js": "^0.4.19"
   },
   "devDependencies": {

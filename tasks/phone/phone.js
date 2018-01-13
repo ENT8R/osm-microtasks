@@ -1,7 +1,6 @@
 const PNF = require('google-libphonenumber').PhoneNumberFormat;
 const phoneUtil = require('google-libphonenumber').PhoneNumberUtil.getInstance();
 const Mustache = require('mustache');
-const osmtogeojson = require('osmtogeojson');
 const osmAPI = require('../../osm/index.js');
 
 const copyNumber = new Clipboard('.copy-number');
@@ -15,7 +14,14 @@ copyNumberAndOpenEditor.on('success', function(e) {
 
 let osm = new osmAPI();
 let geoJSON = '';
-let map;
+const map = L.map('map', {
+  minZoom: 2,
+  maxZoom: 22
+}).setView([50, 10], 4);
+L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+  maxZoom: 22,
+  attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(map);
 
 let tagToSearch = 'phone';
 const changesetComment = 'Corrected phone number to be in international format (E.164)';
@@ -60,16 +66,17 @@ function buildQuery(level, area) {
       'node(area.a)["' + tagToSearch + '"]["' + tagToSearch + '"!~"^[+][1-9]|110|112"];' +
       'way(area.a)["' + tagToSearch + '"]["' + tagToSearch + '"!~"^[+][1-9]|110|112"];' +
       ');' +
-      'out;',
+      'out center;' +
+      'out skel;',
     state: '[out:json][timeout:3600];' +
       'area["ISO3166-2"="' + area + '"][admin_level=4]->.a;' +
       '(' +
       'node(area.a)["' + tagToSearch + '"]["' + tagToSearch + '"!~"^[+][1-9]|110|112"];' +
       'way(area.a)["' + tagToSearch + '"]["' + tagToSearch + '"!~"^[+][1-9]|110|112"];' +
       ');' +
-      'out;'
+      'out center;' +
+      'out skel;'
   };
-
   switch (level) {
     case 2:
       return query.country;
@@ -77,7 +84,6 @@ function buildQuery(level, area) {
     case 4:
       return query.state;
       break;
-
   }
 }
 
@@ -86,48 +92,54 @@ function query(query, countryCode) {
 
   osm.overpass(query, function(data) {
     $('.progress').fadeOut();
-
-    let numberOfElements = 0;
-    let elements = JSON.parse(data).elements;
-    viewOnMap(osmtogeojson(JSON.parse(data)), countryCode);
+    viewOnMap(JSON.parse(data).elements, countryCode);
   });
 }
 
-function viewOnMap(geoJSON, countryCode) {
-  $('#map').show();
-
-  if (!map) map = L.map('map').setView([0, 0], 3);
-
+function viewOnMap(elements, countryCode) {
   map.eachLayer(function(layer) {
     map.removeLayer(layer);
   });
 
-  L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 22,
     attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
   }).addTo(map);
 
   const markers = L.markerClusterGroup();
-  const geoJSONLayer = L.geoJSON(geoJSON, {
-    onEachFeature: function(feature, layer) {
-      if (feature.properties && feature.properties.id && feature.properties[tagToSearch]) {
-        let phoneNumber = '';
-        let validNumber = true;
 
-        try {
-          phoneNumber = phoneUtil.format(phoneUtil.parse(feature.properties[tagToSearch], countryCode), PNF.INTERNATIONAL);
-        } catch (err) {
-          phoneNumber = feature.properties[tagToSearch];
-          validNumber = false;
-        }
+  for (let i = 0; i < elements.length; i++) {
+    const element = elements[i];
 
-        layer.bindPopup(getMarkerText(feature.properties.id, feature.properties[tagToSearch], phoneNumber, validNumber), {
-          maxWidth: 1000
-        });
+    if (element.tags && element.tags[tagToSearch]) {
+      let phoneNumber = '';
+      const number = element.tags[tagToSearch];
+      let validNumber = true;
+
+      try {
+        phoneNumber = phoneUtil.format(phoneUtil.parse(number, countryCode), PNF.INTERNATIONAL);
+      } catch (err) {
+        phoneNumber = number;
+        validNumber = false;
       }
-    }
-  });
 
-  markers.addLayer(geoJSONLayer);
+      const type = element.type;
+      const id = type + '/' + element.id;
+      let coordinates = [];
+
+      if (element.lat && element.lon) {
+        coordinates.push(element.lat);
+        coordinates.push(element.lon);
+      } else {
+        coordinates.push(element.center.lat);
+        coordinates.push(element.center.lon);
+      }
+
+      const marker = L.marker(coordinates)
+        .bindPopup(getMarkerText(id, number, phoneNumber, validNumber));
+      markers.addLayer(marker);
+    }
+  }
   map.addLayer(markers);
   map.fitBounds(markers.getBounds());
 }

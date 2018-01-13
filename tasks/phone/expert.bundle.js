@@ -19607,14 +19607,14 @@ function buildQuery(level, area) {
       'node(area.a)["' + tagToSearch + '"]["' + tagToSearch + '"!~"^[+][1-9]|110|112"];' +
       'way(area.a)["' + tagToSearch + '"]["' + tagToSearch + '"!~"^[+][1-9]|110|112"];' +
       ');' +
-      'out;',
+      'out geom;',
     state: '[out:json][timeout:3600];' +
       'area["ISO3166-2"="' + area + '"][admin_level=4]->.a;' +
       '(' +
       'node(area.a)["' + tagToSearch + '"]["' + tagToSearch + '"!~"^[+][1-9]|110|112"];' +
       'way(area.a)["' + tagToSearch + '"]["' + tagToSearch + '"!~"^[+][1-9]|110|112"];' +
       ');' +
-      'out;'
+      'out geom;'
   };
 
   switch (level) {
