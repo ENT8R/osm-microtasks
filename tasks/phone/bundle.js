@@ -9337,7 +9337,20 @@ $(document).ready(function() {
   $('.states').change(function() {
     query(buildQuery(4, $(this).val()), $(this).attr('data-country'));
   });
+
+  init();
 });
+
+//Get the URL params and use them to e.g. show the data on the map
+function init() {
+  const url = new URL(window.location.href);
+
+  const country = url.searchParams.get('country');
+
+  if (country) {
+    $('#country').val(country);
+  }
+}
 
 function hasStates(country) {
   if (country == 'DE') {
