@@ -19589,7 +19589,25 @@ $(document).ready(function() {
   $('.states').change(function() {
     query(buildQuery(4, $(this).val()), $(this).attr('data-country'));
   });
+
+  init();
 });
+
+//Get the URL params and use them to e.g. show the data on the map
+function init() {
+  const url = new URL(window.location.href);
+
+  const country = url.searchParams.get('country');
+  const start = url.searchParams.get('start');
+
+  if (country) {
+    $('#country').val(country);
+
+    if (start) {
+      query(buildQuery(2, $('#country').val()), $('#country').val());
+    }
+  }
+}
 
 function hasStates(country) {
   if (country == 'DE') {

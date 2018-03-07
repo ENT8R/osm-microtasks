@@ -57,9 +57,14 @@ function init() {
   const url = new URL(window.location.href);
 
   const country = url.searchParams.get('country');
+  const start = url.searchParams.get('start');
 
   if (country) {
     $('#country').val(country);
+
+    if (start) {
+      query(buildQuery(2, $('#country').val()), $('#country').val());
+    }
   }
 }
 
