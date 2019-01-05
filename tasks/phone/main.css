@@ -6,9 +6,14 @@
   height: 80vh;
 }
 
+.phone-numbers {
+  display: inline-block
+}
+
 .phone-number {
   font-size: large;
   font-weight: bold;
+  text-align: end;
 }
 
 .new-number {

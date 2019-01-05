@@ -60,24 +60,30 @@ function layer() {
   }).addTo(map);
 }
 
+/* eslint-disable indent */
 function getContent(id, old, international, valid) {
   return `
-  <div class="phone-number red-text">${old}</div>
-  ${(v => {
-    if(v) {
-      return `<div class="phone-number new-number green-text" data-clipboard-text="${international}">${international}</div>`;
-    }
-    return '';
-  })(valid)}
-  <a href="https://www.openstreetmap.org/${id}" target="_blank">View on OpenStreetMap</a><br>
-  <a href="${Common.UI.editor(id)}" target="_blank">Open with editor</a><br>
-  ${(v => {
-    if(v) {
-      return `<a href="#" class="copy-number-and-open" data-clipboard-text="${international}" data-url="${Common.UI.editor(id)}">
-      Copy new number to clipboard and open iD</a>`;
-    }
-    return '';
-  })(valid)}`;
+  <div class="phone-numbers">
+    <div class="phone-number red-text">${old}</div>
+    ${(v => {
+      if(v) {
+        return `<div class="phone-number new-number green-text" data-clipboard-text="${international}">${international}</div>`;
+      }
+      return '';
+    })(valid)}
+  </div>
+  <div>
+    <a href="https://www.openstreetmap.org/${id}" target="_blank">View on OpenStreetMap</a><br>
+    <a href="${Common.UI.editor(id)}" target="_blank">Open with editor</a><br>
+    ${(v => {
+      if(v) {
+        return `<a href="#" class="copy-number-and-open" data-clipboard-text="${international}" data-url="${Common.UI.editor(id)}">
+        Copy new number to clipboard and open iD</a>`;
+      }
+      return '';
+    })(valid)}
+  </div>`;
 }
+/* eslint-enable indent */
 
 window.process = process;

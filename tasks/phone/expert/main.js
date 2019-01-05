@@ -59,13 +59,15 @@ function getContent(id, name, old, international, valid) {
           }
           return '';
         })(name)}
-        <div class="phone-number red-text">${old}</div>
-        ${(v => {
-          if(v) {
-            return `<div class="phone-number new-number green-text" data-clipboard-text="${international}">${international}</div>`;
-          }
-          return '<div class="red-text">Invalid number</div>';
-        })(valid)}
+        <div class="phone-numbers">
+          <div class="phone-number red-text">${old}</div>
+          ${(v => {
+            if(v) {
+              return `<div class="phone-number new-number green-text" data-clipboard-text="${international}">${international}</div>`;
+            }
+            return '<div class="red-text">Invalid number</div>';
+          })(valid)}
+          </div>
       </div>
       <div class="card-action">
         <a href="https://www.openstreetmap.org/${id}" target="_blank">View on OpenStreetMap</a>
