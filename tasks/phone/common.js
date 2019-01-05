@@ -70,8 +70,8 @@ window.Common = {
   UI: (() => {
     const me = {};
 
-    me.editor = (id) => {
-      return `https://osm.org/edit?${id.replace('/', '=')}&comment=${Common.COMMENT}&hashtags=${Common.HASHTAG}`;
+    me.editor = (id, position) => {
+      return `https://osm.org/edit?${id.replace('/', '=')}#map=${position}&comment=${Common.COMMENT}&hashtags=${Common.HASHTAG}`;
     };
 
     function search() {

@@ -32,9 +32,18 @@ function process(elements, countryCode) {
         valid = false;
       }
 
-      const id = `${element.type}/${element.id}`;
+      const coordinates = [];
+      if (element.lat && element.lon) {
+        coordinates.push(element.lat);
+        coordinates.push(element.lon);
+      } else {
+        coordinates.push(element.center.lat);
+        coordinates.push(element.center.lon);
+      }
 
-      html.push(getContent(id, element.tags.name, old, international, valid));
+      const id = `${element.type}/${element.id}`;
+      const position = `18/${coordinates.join('/')}`;
+      html.push(getContent(id, element.tags.name, old, international, valid, position));
       numberOfElements++;
     }
   }
@@ -48,7 +57,7 @@ function process(elements, countryCode) {
 }
 
 /* eslint-disable indent */
-function getContent(id, name, old, international, valid) {
+function getContent(id, name, old, international, valid, position) {
   return `
   <div class="col s12 m6 l4" data-id="${id}" data-phone="${international}">
     <div class="card white">
@@ -71,7 +80,7 @@ function getContent(id, name, old, international, valid) {
       </div>
       <div class="card-action">
         <a href="https://www.openstreetmap.org/${id}" target="_blank">View on OpenStreetMap</a>
-        <a href="${Common.UI.editor(id)}" target="_blank">Open with editor</a><br><br>
+        <a href="${Common.UI.editor(id, position)}" target="_blank">Open with editor</a><br><br>
         ${(v => {
           if(v) {
             return `<a class="waves-effect waves-light btn indigo" onclick="remove('${id}');">Remove</a>

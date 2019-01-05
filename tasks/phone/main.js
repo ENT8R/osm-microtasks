@@ -31,9 +31,7 @@ function process(elements, countryCode) {
         valid = false;
       }
 
-      const id = `${element.type}/${element.id}`;
       const coordinates = [];
-
       if (element.lat && element.lon) {
         coordinates.push(element.lat);
         coordinates.push(element.lon);
@@ -42,7 +40,9 @@ function process(elements, countryCode) {
         coordinates.push(element.center.lon);
       }
 
-      const marker = L.marker(coordinates).bindPopup(getContent(id, old, international, valid));
+      const id = `${element.type}/${element.id}`;
+      const position = `18/${coordinates.join('/')}`;
+      const marker = L.marker(coordinates).bindPopup(getContent(id, old, international, valid, position));
       markers.addLayer(marker);
     }
   }
@@ -61,7 +61,7 @@ function layer() {
 }
 
 /* eslint-disable indent */
-function getContent(id, old, international, valid) {
+function getContent(id, old, international, valid, position) {
   return `
   <div class="phone-numbers">
     <div class="phone-number red-text">${old}</div>
@@ -74,10 +74,10 @@ function getContent(id, old, international, valid) {
   </div>
   <div>
     <a href="https://www.openstreetmap.org/${id}" target="_blank">View on OpenStreetMap</a><br>
-    <a href="${Common.UI.editor(id)}" target="_blank">Open with editor</a><br>
+    <a href="${Common.UI.editor(id, position)}" target="_blank">Open with editor</a><br>
     ${(v => {
       if(v) {
-        return `<a href="#" class="copy-number-and-open" data-clipboard-text="${international}" data-url="${Common.UI.editor(id)}">
+        return `<a href="#" class="copy-number-and-open" data-clipboard-text="${international}" data-url="${Common.UI.editor(id, position)}">
         Copy new number to clipboard and open iD</a>`;
       }
       return '';
