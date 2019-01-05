@@ -3,22 +3,23 @@
   "version": "0.1.0",
   "description": "A website for performing micro-tasks to improve the OpenStreetMap",
   "scripts": {
-    "start": "npm run build && python -m SimpleHTTPServer",
-    "build": "browserify tasks/phone/phone.js -o tasks/phone/bundle.js && browserify tasks/phone/expert/expert.js -o tasks/phone/expert/bundle.js",
-    "watch": "watchify tasks/phone/phone.js -o tasks/phone/bundle.js -v",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "python -m SimpleHTTPServer",
+    "lint": "eslint **/**.js",
+    "test": "npm run lint"
   },
   "author": "ENT8R <info.ent8r@gmail.com>",
   "license": "GPL-3.0",
   "repository": "https://github.com/ENT8R/osm-microtasks",
   "dependencies": {
-    "google-libphonenumber": "^3.0.10",
-    "mustache": "^2.3.0",
-    "osm-auth": "^1.0.2",
-    "xml2js": "^0.4.19"
+    "clipboard": "^2.0.4",
+    "google-libphonenumber": "^3.2.2",
+    "jquery": "^3.3.1",
+    "leaflet": "^1.4.0",
+    "leaflet.markercluster": "^1.4.1",
+    "materialize-css": "^1.0.0",
+    "osm-auth": "^1.0.2"
   },
   "devDependencies": {
-    "browserify": "^14.5.0",
-    "watchify": "^3.9.0"
+    "eslint": "^5.11.1"
   }
 }

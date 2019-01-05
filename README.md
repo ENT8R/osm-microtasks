@@ -11,7 +11,7 @@ You will get a list of things which need to be fixed.
 
 Currently there are only a few tasks you can do. More will be added in the future. But what you can do so far is:
 - Convert telephone numbers into the international format [E.164](https://en.wikipedia.org/wiki/E.164)
-  - You will see the old phone number and the new, international phone number next to each other
+  - You will see the old phone number and the new, international phone number below each other
   - Click "check" if the number was converted correct
   - The new number will be updated in the background
   - Please check the numbers carefully!
