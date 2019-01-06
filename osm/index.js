@@ -7,7 +7,7 @@ const auth = osmAuth({
   landing: '../osm/land.html'
 });
 
-const version = '0.1.0';
+const version = '0.2.0';
 
 function overpass(query, callback) {
   const http = new XMLHttpRequest();
