@@ -12,9 +12,22 @@
         integrity="sha384-5KZdSYqynSzIjQGS2M1O3HW6HVDBjfNx0v5Y2eQuE3vvQ9NTiiPK9/GWc0yYCrgw"
         crossorigin="anonymous">
 
-  <link rel="stylesheet" href="../main.css">
+  <link rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css"
+        integrity="sha384-BF7C732iE6WuqJMhUnTNJJLVvW1TIP87P2nMDY7aN2j2EJFWIaqK89j3WlirhFZU"
+        crossorigin="anonymous">
+  <link rel="stylesheet"
+        href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css"
+        integrity="sha384-lPzjPsFQL6te2x+VxmV6q1DpRxpRk0tmnl2cpwAO5y04ESyc752tnEWPKDfl1olr"
+        crossorigin="anonymous">
+  <link rel="stylesheet"
+        href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css"
+        integrity="sha384-5kMSQJ6S4Qj5i09mtMNrWpSi8iXw230pKU76xTmrpezGnNJQzj0NzXjQLLg+jE7k"
+        crossorigin="anonymous">
 
-  <link rel="shortcut icon" type="image/x-icon" href="../../../assets/icon.png">
+  <link rel="stylesheet" href="main.css">
+
+  <link rel="shortcut icon" type="image/x-icon" href="../assets/icon.png">
 </head>
 
 <body>
@@ -39,7 +52,6 @@
         <a href="../../index.html" class="brand-logo left hide-on-small-only">OSM micro tasks</a>
         <ul class="right">
           <li><a href="mailto:info.ent8r@gmail.com?Subject=New%20area%20for%20micro%20task">Propose new area</a></li>
-          <li><a id="logout" href="#">Logout</a></li>
         </ul>
       </div>
     </nav>
@@ -93,21 +105,18 @@
       </div>
     </div>
 
-    <div id="elements" class="row"></div>
-
-    <div id="login-modal" class="modal">
-      <div class="modal-content center">
-        <button id="login-button" href="#" class="btn-large waves-effect waves-green indigo">Login with OSM</button>
-      </div>
-    </div>
+    <div id="map"></div>
   </main>
 
   <script src="https://unpkg.com/materialize-css@1.0.0/dist/js/materialize.min.js"
           integrity="sha384-ZOED+d9HxogEQwD+jFvux96iGQR9TxfJO+mPF2ZS0TuKH6eWrmvPsDpO6I0OWdiX"
           crossorigin="anonymous"></script>
 
-  <script src="https://unpkg.com/clipboard@2.0.4/dist/clipboard.min.js"
-          integrity="sha384-8CYhPwYlLELodlcQV713V9ZikA3DlCVaXFDpjHfP8Z36gpddf/Vrt47XmKDsCttu"
+  <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"
+          integrity="sha384-jV/9OyZzm1ZMHG4pfYVMmnnCtVUlZdWgZ8mNSX3CPFM4HSK2KUSP8xzLljzMDkWd"
+          crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"
+          integrity="sha384-RLIyj5q1b5XJTn0tqUhucRZe40nFTocRP91R/NkRJHwAe4XxnTV77FXy/vGLiec2"
           crossorigin="anonymous"></script>
 
   <script src="https://unpkg.com/google-libphonenumber@3.2.2/dist/libphonenumber.js"
@@ -116,10 +125,11 @@
   <script src="https://unpkg.com/osm-auth@1.0.2/osmauth.min.js"
           integrity="sha384-Q9r1nd0FeP7LjBAYKFt035baNDhMkGYYLFIzolLNUlUvxaBgD972E7bij56RiNgA"
           crossorigin="anonymous"></script>
-  <script src="../../../osm/index.js"></script>
-  <script src="../common.js"></script>
+  <script src="../osm/index.js"></script>
 
-  <script src="main.js"></script>
+  <script src="task.js"></script>
+  <script src="maps.js"></script>
+  <script src="init.js"></script>
 
 </body>
 

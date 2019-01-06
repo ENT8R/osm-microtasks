@@ -3,7 +3,8 @@
 const auth = osmAuth({
   oauth_consumer_key: 'sGSxWmOF7JYttUCO41YoQD2VJNqBlTjcjETAOmrW', // eslint-disable-line camelcase
   oauth_secret: 'cqpLFpQtEigD46EiAmaXnJqCaafNaEuz5Ow7l8ba', // eslint-disable-line camelcase
-  auto: true
+  auto: true,
+  landing: '../osm/land.html'
 });
 
 const version = '0.1.0';
