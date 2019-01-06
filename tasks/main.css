@@ -17,8 +17,8 @@
 .values .value {
   text-align: end;
 }
-.value,
-.information {
+
+.bold {
   font-size: large;
   font-weight: bold;
 }

@@ -191,15 +191,15 @@ class Task { // eslint-disable-line no-unused-vars
       return `
       <div data-id="${data.id}" data-value="${data.correct}">
         <div class="values">
-          <div class="value red-text">${data.old}</div>
+          <div class="value red-text bold">${data.old}</div>
           ${(v => {
             if(v) {
-              return `<div class="value new-value green-text">${data.correct}</div>`;
+              return `<div class="value new-value green-text bold">${data.correct}</div>`;
             }
             return '';
           })(data.correct)}
         </div>
-        <div class="information"></div>
+        <div class="information bold"></div>
         <div>
           <a href="https://www.openstreetmap.org/${data.id}" target="_blank">View on OpenStreetMap</a><br>
           <a href="${link}" target="editor">Open with editor</a><br>
@@ -224,15 +224,15 @@ class Task { // eslint-disable-line no-unused-vars
               return '';
             })(data.name)}
             <div class="values">
-              <div class="value red-text">${data.old}</div>
+              <div class="value red-text bold">${data.old}</div>
               ${(v => {
                 if(v) {
-                  return `<div class="value new-value green-text">${data.correct}</div>`;
+                  return `<div class="value new-value green-text bold">${data.correct}</div>`;
                 }
                 return '<div class="red-text">Invalid value</div>';
               })(data.correct)}
             </div>
-            <div class="information"></div>
+            <div class="information bold"></div>
           </div>
           <div class="card-action">
             <div>

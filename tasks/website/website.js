@@ -35,7 +35,7 @@ class Website extends Task { // eslint-disable-line no-unused-vars
   /* eslint-enable indent */
 
   correct(old) {
-    return `http://${old}`.replace(/\/$/, '');
+    return `https://${old}`.replace(/\/$/, '');
   }
 
   information(el) {
@@ -49,7 +49,9 @@ class Website extends Task { // eslint-disable-line no-unused-vars
 
     const old = el.dataset.value;
 
-    fetch(old).then(response => {
+    fetch(old, {
+      method: 'HEAD'
+    }).then(response => {
       this.overlay.style.display = 'none';
 
       if (response.status !== 200) {
@@ -77,8 +79,12 @@ class Website extends Task { // eslint-disable-line no-unused-vars
       this.overlay.style.display = 'none';
 
       info.classList.add('red-text');
-      info.innerText = 'The website is not accessible anymore';
+      info.classList.remove('bold');
+      info.innerText = 'The website is either not accessible anymore or not available via HTTPS. Please fix it by hand!';
       correct.innerText = '';
+      if (copy !== null) {
+        copy.dataset.clipboard = '';
+      }
     });
   }
 }
