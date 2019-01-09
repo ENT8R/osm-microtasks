@@ -43,7 +43,7 @@ class Website extends Task { // eslint-disable-line no-unused-vars
 
     const correct = el.querySelector('.value.new-value');
     const info = el.querySelector('.information');
-    const copy = el.querySelector('.copy-value-and-open');
+    const copy = el.querySelectorAll('.copy-value-and-open');
     const upload = el.querySelector('.btn.upload');
     const informationButton = el.querySelector('.btn.more-information');
 
@@ -68,7 +68,9 @@ class Website extends Task { // eslint-disable-line no-unused-vars
           informationButton.style.display = 'none';
         }
         if (copy !== null) {
-          copy.dataset.clipboard = url;
+          for (let i = 0; i < copy.length; i++) {
+            copy[i].dataset.clipboard = url;
+          }
         }
 
         if (url.length >= old.length + 5) {
@@ -83,7 +85,9 @@ class Website extends Task { // eslint-disable-line no-unused-vars
       info.innerText = 'The website is either not accessible anymore or not available via HTTPS. Please fix it by hand!';
       correct.innerText = '';
       if (copy !== null) {
-        copy.dataset.clipboard = '';
+        for (let i = 0; i < copy.length; i++) {
+          copy[i].dataset.clipboard = '';
+        }
       }
     });
   }

@@ -144,7 +144,10 @@ class Task { // eslint-disable-line no-unused-vars
   }
 
   editor(id, position) {
-    return `https://osm.org/edit?${id.replace('/', '=')}#map=${position}&comment=${this.COMMENT}&hashtags=${this.HASHTAG}`;
+    return {
+      osm: `https://osm.org/edit?${id.replace('/', '=')}#map=${position}&comment=${this.COMMENT}&hashtags=${this.HASHTAG}`,
+      level0: `http://level0.osmz.ru/?url=${id}&center=${position.split(/\/(.+)/)[1]}`
+    };
   }
 
   process(data, countryCode) {
@@ -185,7 +188,7 @@ class Task { // eslint-disable-line no-unused-vars
 
   /* eslint-disable indent */
   content(maps, data) {
-    const link = this.editor(data.id, data.position);
+    const editor = this.editor(data.id, data.position);
 
     if (maps) {
       return `
@@ -200,13 +203,18 @@ class Task { // eslint-disable-line no-unused-vars
           })(data.correct)}
         </div>
         <div class="information bold"></div>
-        <div>
-          <a href="https://www.openstreetmap.org/${data.id}" target="_blank">View on OpenStreetMap</a><br>
-          <a href="${link}" target="editor">Open with editor</a><br>
+        <div class="links">
+          <a href="https://www.openstreetmap.org/${data.id}" target="_blank">View on OpenStreetMap</a>
+          <a href="${editor.osm}" target="editor">Open with editor</a>
           ${(v => {
             if(v) {
-              return `<a href="#" class="copy-value-and-open" data-clipboard="${data.correct}" data-url="${link}">
-              Copy correct value to clipboard and open iD</a>`;
+              return `
+              <a href="#" class="copy-value-and-open" data-clipboard="${data.correct}" data-url="${editor.osm}">
+              Copy to clipboard and open iD
+              </a>
+              <a href="#" class="copy-value-and-open" data-clipboard="${data.correct}" data-url="${editor.level0}">
+              Copy to clipboard and open Level0
+              </a>`;
             }
             return '';
           })(data.correct)}
@@ -237,7 +245,7 @@ class Task { // eslint-disable-line no-unused-vars
           <div class="card-action">
             <div>
               <a href="https://www.openstreetmap.org/${data.id}" target="_blank">View on OpenStreetMap</a>
-              <a href="${link}" target="editor">Open with editor</a><br><br>
+              <a href="${editor.osm}" target="editor">Open with editor</a><br><br>
             </div>
             <div>
               ${(v => {
