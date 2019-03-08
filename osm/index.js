@@ -9,17 +9,26 @@ const auth = osmAuth({
 
 const version = '0.2.0';
 
-function overpass(query, callback) {
-  const http = new XMLHttpRequest();
-  http.onreadystatechange = function() {
-    if (this.readyState === 4 && this.status === 200) {
-      if (callback) {
-        callback(http.responseText);
+function overpass(query) {
+  return new Promise((resolve, reject) => {
+    fetch('https://overpass-api.de/api/interpreter', {
+      method: 'POST',
+      body: query,
+      headers: {
+        'Content-Type': 'text/plain',
+      },
+    }).then(response => {
+      if (!response.ok) {
+        throw new Error('Website could not be loaded');
+      } else {
+        return response.json();
       }
-    }
-  };
-  http.open('POST', 'https://overpass-api.de/api/interpreter', true);
-  http.send(query);
+    }).then(response => {
+      resolve(response);
+    }).catch(e => {
+      reject(e);
+    });
+  });
 }
 
 function createChangeset(comment, callback) {

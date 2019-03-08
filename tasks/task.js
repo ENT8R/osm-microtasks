@@ -70,15 +70,23 @@ class Task { // eslint-disable-line no-unused-vars
         stateSelect.getAttribute('data-country')
       );
     });
+
+    if (countrySelect.value !== '') {
+      countrySelect.dispatchEvent(new Event('change'));
+    }
+    if (stateSelect.value !== '') {
+      stateSelect.dispatchEvent(new Event('change'));
+    }
   }
 
   request(query, countryCode) {
     this.overlay.style.display = 'block';
-    osmapi.overpass(query, (data) => {
+    osmapi.overpass(query).then(data => {
       this.overlay.style.display = 'none';
-      data = JSON.parse(data).elements;
-      this.UI.show(this.process(data, countryCode));
+      this.UI.show(this.process(data.elements, countryCode));
       this.buttons();
+    }).catch(() => {
+      return M.toast({html: 'Getting data from Overpass API failed'});
     });
   }
 
@@ -102,6 +110,30 @@ class Task { // eslint-disable-line no-unused-vars
       } else if (t.classList.contains('copy-value-and-open')) {
         this.clipboard(t.dataset.clipboard);
         window.open(t.dataset.url, 'editor');
+      }
+    });
+
+    const reload = document.getElementById('reload');
+    reload.addEventListener('click', () => {
+      const country = document.getElementById('country');
+      const state = document.getElementById('state');
+
+      if (this.hasStates(country.value)) {
+        if (state.value === '') {
+          return M.toast({html: 'Please select a state first!'});
+        }
+        this.request(
+          this.query(4, state.value),
+          state.getAttribute('data-country')
+        );
+      } else {
+        if (country.value === '') {
+          return M.toast({html: 'Please select a country first!'});
+        }
+        this.request(
+          this.query(2, country.value),
+          country.value
+        );
       }
     });
 
