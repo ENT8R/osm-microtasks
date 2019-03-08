@@ -49,9 +49,12 @@ class Website extends Task { // eslint-disable-line no-unused-vars
 
     const old = el.dataset.value;
 
-    fetch(old, {
-      method: 'HEAD'
+    fetch(`https://ent8r.lima-city.de/httpschecker/status?url=${old.replace(/^(?:https?:\/\/)?/i, '')}`, {
+      method: 'GET'
+    }).then((response) => {
+      return response.json();
     }).then(response => {
+
       this.overlay.style.display = 'none';
 
       if (response.status !== 200) {
@@ -82,7 +85,7 @@ class Website extends Task { // eslint-disable-line no-unused-vars
 
       info.classList.add('red-text');
       info.classList.remove('bold');
-      info.innerText = 'The website is either not accessible anymore or not available via HTTPS. Please fix it by hand!';
+      info.innerText = 'The website is probably not accessible anymore. Please fix it by hand!';
       correct.innerText = '';
       if (copy !== null) {
         for (let i = 0; i < copy.length; i++) {
